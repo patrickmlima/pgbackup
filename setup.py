@@ -14,6 +14,7 @@ setup(
 	packages=find_packages('src'),
 	package_dir={'': 'src'},
         install_requires=['boto3'],
+	python_requires='>=3.6',
         entry_points={
                 'console_scripts': [
                         'pgbackup=pgbackup.cli:main'
