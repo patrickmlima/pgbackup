@@ -1,17 +1,21 @@
 from argparse import Action, ArgumentParser
 
+known_drivers = ['local', 's3']
+
 class DriverAction(Action):
-	def __call__(self, parser, namespace, values, option_string=None):
-		driver, destination = values
-		namespace.driver = driver.lower()
-		namespace.destination = destination
+    def __call__(self, parser, namespace, values, option_string=None):
+        driver, destination = values
+        if driver.lower() not in known_drivers:
+            parser.error("Unknown driver. Available drivers are 'local' & 's3'")
+        namespace.driver = driver.lower()
+        namespace.destination = destination
 
 
 def create_parser():
 	parser = ArgumentParser(description="""
 	Back up PostgreSQL databases locally or to AWS S3.
 	""")
-	
+
 	parser.add_argument("url", help="URL of the database to backup")
 	parser.add_argument("--driver",
 		help="how & where to store backup",
@@ -29,7 +33,7 @@ def main():
 
 	args = create_parser().parse_args()
 	dump = pgdump.dump(args.url)
-	
+
 	if args.driver == 's3':
 		timestamp = time.strftime("%Y-%m-%dT%H-%M-%S", time.localtime())
 		file_name = pgdump.dump_file_name(args.url, timestamp)
